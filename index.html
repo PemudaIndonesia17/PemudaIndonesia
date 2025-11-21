@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Emotion Calendar — Premium Glass</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- watermark -->
+<div class="watermark">Emotion Calendar</div>
+
+<!-- Splash Screen + Theme Picker -->
+<div id="splash" aria-hidden="false">
+  <h1>Emotion Calendar</h1>
+  <p>Pilih tema yang mencerminkan mood-mu hari ini</p>
+
+  <div class="theme-grid" id="themeGrid">
+    <div class="theme-btn" data-theme="blue" style="background:linear-gradient(135deg,#2b7cff,#7ad0ff);">
+      <div>Sky</div><small>Calm & Fresh</small>
+    </div>
+    <div class="theme-btn" data-theme="purple" style="background:linear-gradient(135deg,#9d4edd,#c77dff);">
+      <div>Mystic</div><small>Deep & Calm Vibe</small>
+    </div>
+    <div class="theme-btn" data-theme="green" style="background:linear-gradient(135deg,#2ecc71,#27ae60);">
+      <div>Nature</div><small>Healing & Balance</small>
+    </div>
+    <div class="theme-btn" data-theme="pink" style="background:linear-gradient(135deg,#ff6bce,#ff8adb);">
+      <div>Love</div><small>Warm & Gentle</small>
+    </div>
+    <div class="theme-btn" data-theme="sunset" style="background:linear-gradient(135deg,#ff9a9e,#fecfef);color:#2b1b2a;">
+      <div>Sunset</div><small>Warm & Soft</small>
+    </div>
+    <div class="theme-btn" data-theme="gold" style="background:linear-gradient(135deg,#ffd166,#f6c85f);color:#3b2b00;">
+      <div>Gold</div><small>Elegant & Warm</small>
+    </div>
+  </div>
+
+  <div class="splash-footer">
+    <div class="splash-choose">Pilih tema — atau tekan <strong>Skip</strong> untuk masuk default.</div>
+    <div style="margin-top:6px;display:flex;gap:8px;">
+      <button id="skipSplash" class="btn ghost" style="background:transparent;color:white;border:1px solid rgba(255,255,255,0.22)">Skip</button>
+      <button id="resetTheme" class="btn" style="background:rgba(0,0,0,0.12);color:white;border:0">Reset Theme</button>
+    </div>
+  </div>
+</div>
+
+<div class="container" id="app" aria-hidden="true">
+  <div class="header">
+    <div class="logo" title="Emotion Calendar">EC</div>
+    <div style="flex:1;">
+      <div class="title">Lacak mood-mu setiap hari</div>
+      <div class="subtitle">Mood tracker • Saran tak terbatas • Keep Healthy</div>
+    </div>
+
+    <div class="controls">
+      <div class="quick-actions">
+        <button id="quickMood" class="btn ghost" title="Atur Mood Hari Ini">Atur Mood Hari Ini</button>
+      </div>
+
+      <button id="backToTheme" class="btn ghost" title="Kembali ke Pilih Tema">🎨 Tema</button>
+
+      <select id="lang" class="lang" aria-label="Pilih Bahasa">
+        <option value="id">Indonesia</option>
+        <option value="en">English</option>
+      </select>
+      <button id="darkToggle" class="btn" title="Toggle Mode Malam">🌙</button>
+      <button id="markToday" class="btn">Tandai Hari Ini</button>
+    </div>
+  </div>
+
+  <div class="main-row">
+    <div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <strong id="monthLabel">November 2025</strong>
+          <div>
+            <button id="prev" class="btn ghost">◀</button>
+            <button id="next" class="btn ghost">▶</button>
+          </div>
+        </div>
+        <div class="calendar-grid" id="calendar" aria-live="polite"></div>
+      </div>
+
+      <div class="card" style="margin-top:18px;">
+        <h4>Ringkasan Bulanan</h4>
+        <div id="percentageContent" class="percentage-grid"></div>
+      </div>
+
+    </div>
+
+    <aside>
+      <div class="card">
+        <h6>Saran Harian</h6>
+        <div id="adviceBox" class="advice-box">
+          Pilih mood hari ini untuk mendapatkan saran yang segar dan berbeda setiap kali!
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button id="newAdvice" class="btn">Saran Baru</button>
+          <button id="reset" class="btn ghost">Reset Data</button>
+        </div>
+        <div class="small" style="margin-top:8px;color:var(--muted);">
+          Saran tidak pernah habis • Selalu fresh sesuai mood
+        </div>
+
+        <!-- Charts -->
+        <div class="chart-card card" style="margin-top:12px;">
+          <h4>Statistik</h4>
+          <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <button id="viewMonthly" class="btn ghost">Bulanan</button>
+            <button id="viewWeekly" class="btn ghost">Mingguan</button>
+          </div>
+          <div id="chartArea">
+            <div class="canvas-wrap" id="monthlyWrap" style="display:block;">
+              <canvas id="monthlyChart"></canvas>
+            </div>
+            <div class="canvas-wrap" id="weeklyWrap" style="display:none;">
+              <canvas id="weeklyChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mood Summary (ke atas agar note di bawahnya sesuai B2) -->
+        <div class="card" style="margin-top:12px;">
+          <h4>Ringkasan Mood</h4>
+          <div id="moodSummary" class="percentage-grid" style="margin-top:8px;"></div>
+        </div>
+
+        <!-- Catatan Harian (Relocated B2) -->
+        <div class="card" style="margin-top:18px;">
+          <h4>Catatan Harian</h4>
+          <textarea id="noteInput" class="note-input" placeholder="Apa yang membuatmu merasakan mood ini hari ini?"></textarea>
+          <div style="margin-top:12px;display:flex;gap:8px;align-items:center;justify-content:space-between;">
+            <div style="display:flex;gap:8px;">
+              <button id="pdfExportBtn" class="btn ghost">Download PDF (Rentang Tanggal)</button>
+              <button id="pdfExportThisMonth" class="btn ghost">PDF Bulan Ini</button>
+            </div>
+            <div class="small" style="color:var(--muted)">Catatan tersimpan otomatis per tanggal</div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- Modal Mood Picker -->
+<div id="modalRoot" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal" role="document">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <strong id="modalTitle">Pilih Mood Hari Ini</strong>
+      <button id="closeModal" class="btn ghost">×</button>
+    </div>
+    <div class="mood-grid" id="moodGrid">
+      <div class="mood-card" data-mood="happy"><div style="font-size:22px">😁</div><div class="small"></div></div>
+      <div class="mood-card" data-mood="neutral"><div style="font-size:22px">😐</div><div class="small"></div></div>
+      <div class="mood-card" data-mood="sad"><div style="font-size:22px">😔</div><div class="small"></div></div>
+      <div class="mood-card" data-mood="angry"><div style="font-size:22px">😣</div><div class="small"></div></div>
+      <div class="mood-card" data-mood="tired"><div style="font-size:22px">😴</div><div class="small"></div></div>
+    </div>
+    <textarea id="modalNote" class="note-input" placeholder="Catatan untuk hari ini (opsional)"></textarea>
+    <div style="display:flex;gap:8px;margin-top:12px;align-items:center;">
+      <input id="dateForModal" type="date" style="padding:8px;border-radius:8px;border:1px solid rgba(7,32,59,0.06);background:transparent;color:var(--text)"/>
+      <div style="margin-left:auto">
+        <button id="modalSave" class="btn">Simpan Mood</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Range Modal for PDF Export -->
+<div id="pdfRangeModal" class="modal-backdrop" style="display:none;">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <strong>Export PDF — Pilih Rentang</strong>
+      <button id="closePdfRange" class="btn ghost">×</button>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div style="flex:1">
+        <label class="small">Tanggal Mulai</label>
+        <input id="pdfStart" type="date" style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(7,32,59,0.06);background:transparent;color:var(--text)"/>
+      </div>
+      <div style="flex:1">
+        <label class="small">Tanggal Akhir</label>
+        <input id="pdfEnd" type="date" style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(7,32,59,0.06);background:transparent;color:var(--text)"/>
+      </div>
+    </div>
+    <div style="margin-top:12px;text-align:right">
+      <button id="doPdfExport" class="btn">Download PDF Premium</button>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js, jsPDF, html2canvas -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script src="app.js"></script>
+</body>
+</html>
